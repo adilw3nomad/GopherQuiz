@@ -2,35 +2,50 @@ package main
 
 import (
 	"bufio"
+	"encoding/csv"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 type quizItem struct {
 	question string
 	answer   string
-	correct  bool
 }
 
 func main() {
-	// Open up the csv file. TODO Use flag here to specify file path
-	file, err := os.Open("problems.csv")
+	csvFile, err := os.Open("problems.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Keep file in memory until main() has finished
-	defer file.Close()
+	defer csvFile.Close()
 
-	// we need to find the number of lines in the file to use as len argument for making the slice
-	quiz := make([]quizItem, 10)
+	reader := csv.NewReader(csvFile)
+	records, err := reader.ReadAll()
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		// we then create a quiz item for each of the lines in the quiz
-		fmt.Println(scanner.Text())
-	}
-	if err := scanner.Err(); err != nil {
+	if err != nil {
 		log.Fatal(err)
 	}
+
+	for i := 0; i < len(records); i++ {
+		// Create quizItem object
+		quizItem := quizItem{records[i][0], records[i][1]}
+		// Print out the question
+		fmt.Println("Question:", quizItem.question)
+		// Create reader and allow user to input their answer
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("Enter your answer now: ")
+		// Expect answer to be given once they hit return
+		text, _ := reader.ReadString('\n')
+		fmt.Println("Your answer is:", text)
+		// Trim the newline suffix from the input
+		text = strings.TrimSuffix(text, "\n")
+		if text == quizItem.answer {
+			fmt.Println("Correct! Well done")
+		} else {
+			fmt.Println("WRONG! Answer is:", quizItem.answer)
+		}
+	}
+
 }
