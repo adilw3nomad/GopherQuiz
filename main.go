@@ -14,6 +14,15 @@ type quizItem struct {
 	answer   string
 }
 
+// Rubbish ....
+func CheckAnswer(answer string, correctAnswer string) string {
+	if answer == correctAnswer {
+		return "Correct! Well done"
+	} else {
+		return ("WRONG! Answer is: " + correctAnswer)
+	}
+}
+
 func main() {
 	csvFile, err := os.Open("problems.csv")
 	if err != nil {
