@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -16,11 +17,18 @@ type quizItem struct {
 
 // CheckAnswer compares two strings and returns a different message
 // if they match
-func CheckAnswer(answer string, correctAnswer string) string {
+func CheckAnswer(answer string, correctAnswer string) (string, int) {
 	if answer == correctAnswer {
-		return "Correct! Well done\n"
+		return "Correct! Well done\n", 1
 	}
-	return ("WRONG! Answer is: " + correctAnswer + "\n")
+	return ("WRONG! Answer is: " + correctAnswer + "\n"), 0
+}
+
+// ShowScore checks how many questiones were answered correctly and
+// returns a string saying how many were correct and how many were incorrect
+func ShowScore(numberOfCorrectAnswers int, numberOfQuestions int) string {
+	wrongAnswers := numberOfQuestions - numberOfCorrectAnswers
+	return ("Correct answers: " + strconv.Itoa(numberOfCorrectAnswers) + ". Incorrect answers: " + strconv.Itoa(wrongAnswers) + "\n")
 }
 
 func main() {
@@ -39,6 +47,7 @@ func main() {
 	// Create user input reader
 	inputReader := bufio.NewReader(os.Stdin)
 
+	var numberOfCorrectAnswers int
 	for i := range records {
 
 		// Create quizItem object.
@@ -63,6 +72,9 @@ func main() {
 
 		// Compare the answer given by the user to the correct answer
 		// Print a response accordingly.
-		fmt.Print(CheckAnswer(text, quizItem.answer))
+		responseString, scoreIncrement := CheckAnswer(text, quizItem.answer)
+		numberOfCorrectAnswers = numberOfCorrectAnswers + scoreIncrement
+		fmt.Print(responseString)
 	}
+	fmt.Print(ShowScore(numberOfCorrectAnswers, len(records)))
 }
